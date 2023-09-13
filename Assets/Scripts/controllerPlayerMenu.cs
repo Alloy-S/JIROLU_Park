@@ -54,6 +54,41 @@ public class controllerPlayerMenu : MonoBehaviour
             player2.position = Vector2.MoveTowards(player2.position, pos1Player2.position, speed * Time.deltaTime);
             player3.position = Vector2.MoveTowards(player3.position, pos1Player3.position, speed * Time.deltaTime);
         }
+
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            Debug.Log("send");
+            StartCoroutine(addHighscoreDB());
+        }
         
+    }
+    IEnumerator addHighscoreDB() {
+
+        string teamName = "budi";
+        float time = 1000f;
+        float score = 1100f;
+        WWWForm form = new WWWForm();
+        form.AddField("team_name", teamName);
+        form.AddField("time", time.ToString());
+        form.AddField("score", score.ToString());
+        string url = "http://localhost/jirolu_park/addHighscore.php";
+        WWW w = new WWW(url, form);
+        yield return w;
+
+        if (w.error != null)
+        {
+            Debug.Log("submit gagal");
+            Debug.Log(w.error);
+        }
+        else
+        {
+            if (w.isDone)
+            {
+                Debug.Log("succes");
+                Debug.Log(w.text);
+
+            }
+        }
+
+        w.Dispose();
     }
 }

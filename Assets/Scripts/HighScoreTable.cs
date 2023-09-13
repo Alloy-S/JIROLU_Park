@@ -14,6 +14,7 @@ public class HighScoreTable : MonoBehaviour
     private List<HighscoreEntry> highscoreEntryList;
 
     public static HighScoreTable instance;
+    private string jsonString;
 
     [SerializeField]
     private string filename;
@@ -21,6 +22,8 @@ public class HighScoreTable : MonoBehaviour
     {
         return instance;
     }
+
+    [System.Obsolete]
     private void Awake()
     {
         // DontDestroyOnLoad(gameObject);
@@ -31,49 +34,54 @@ public class HighScoreTable : MonoBehaviour
         contentTemplate.gameObject.SetActive(false);
         // buat reset high score
         //  resetHighscore();
-        
+        // StartCoroutine(getHighscore());
+
         // addHighScoreEntry(250, "ASH", 1000);
         // try {
         // string jsonString = PlayerPrefs.GetString("highScoreTable");
-        string jsonString = FileHandler.ReadFromJSON("highscore.json");
-        Debug.Log(jsonString);
-        HighScores highScore = JsonUtility.FromJson<HighScores>(jsonString);
-        // Debug.Log(highScore);
-        // Debug.Log(highScore.highscoreEntryList.Count);
-        // Debug.Log(highScore == null);
-        if (highScore.highscoreEntryList.Count != 0)
-        {
-            for (int i = 0; i < highScore.highscoreEntryList.Count; i++)
-            {
-                for (int j = 0; j < highScore.highscoreEntryList.Count; j++)
-                {
+        // jsonString = FileHandler.ReadFromJSON("highscore.json");
+        // Debug.Log(jsonString);
+        // HighScores highScore = JsonUtility.FromJson<HighScores>(jsonString);
+        // // Debug.Log(highScore);
+        // // Debug.Log(highScore.highscoreEntryList.Count);
+        // // Debug.Log(highScore == null);
+        // if (highScore.highscoreEntryList.Count != 0)
+        // {
+        //     for (int i = 0; i < highScore.highscoreEntryList.Count; i++)
+        //     {
+        //         for (int j = 0; j < highScore.highscoreEntryList.Count; j++)
+        //         {
 
-                    if (highScore.highscoreEntryList[j].scorePoint < highScore.highscoreEntryList[i].scorePoint)
-                    {
-                        HighscoreEntry tmp = highScore.highscoreEntryList[i];
-                        highScore.highscoreEntryList[i] = highScore.highscoreEntryList[j];
-                        highScore.highscoreEntryList[j] = tmp;
-                    }
-                }
-            }
+        //             if (highScore.highscoreEntryList[j].scorePoint < highScore.highscoreEntryList[i].scorePoint)
+        //             {
+        //                 HighscoreEntry tmp = highScore.highscoreEntryList[i];
+        //                 highScore.highscoreEntryList[i] = highScore.highscoreEntryList[j];
+        //                 highScore.highscoreEntryList[j] = tmp;
+        //             }
+        //         }
+        //     }
 
-            highscoreTableList = new List<Transform>();
+        //     highscoreTableList = new List<Transform>();
 
-            for (int i = 0; i < highScore.highscoreEntryList.Count; i++) {
+        //     for (int i = 0; i < highScore.highscoreEntryList.Count; i++)
+        //     {
 
-                if(i > 9) {
-                    break;
-                }
-                createContentTemplate(highScore.highscoreEntryList[i], tableContent, highscoreTableList);
-            }
+        //         if (i > 9)
+        //         {
+        //             break;
+        //         }
+        //         createContentTemplate(highScore.highscoreEntryList[i], tableContent, highscoreTableList);
+        //     }
             // foreach (HighscoreEntry highscore in highScore.highscoreEntryList)
             // {
             //     createContentTemplate(highscore, tableContent, highscoreTableList);
             // }
-        } else {
-            Debug.Log("null");
-        }
-        Debug.Log(jsonString);
+        // }
+        // else
+        // {
+        //     Debug.Log("null");
+        // }
+        // Debug.Log(jsonString);
         // } catch {
         //     resetHighscore();
         //     Debug.Log("reset");
@@ -81,14 +89,20 @@ public class HighScoreTable : MonoBehaviour
 
     }
 
-    void update() {
-        
+    void Start() {
+        StartCoroutine(getHighscore());
     }
 
-    public void resetHighscore() {
+    // void update()
+    // {
+
+    // }
+
+    public void resetHighscore()
+    {
         HighScores highScores = new HighScores();
         string json = JsonUtility.ToJson(highScores);
-        PlayerPrefs.SetString("highScoreTable", json); 
+        PlayerPrefs.SetString("highScoreTable", json);
         FileHandler.SaveToJSON<string>(json, "highscore.json");
         // PlayerPrefs.DeleteAll();
         // PlayerPrefs.Save();
@@ -130,7 +144,7 @@ public class HighScoreTable : MonoBehaviour
     }
 
     public void addHighScoreEntry(float scoreTime, string name, float scorePoint)
-    {       
+    {
         HighscoreEntry highscoreEntry = new HighscoreEntry { scoreTime = scoreTime, name = name, scorePoint = scorePoint };
 
         // string jsonString = PlayerPrefs.GetString("highScoreTable");
@@ -144,16 +158,73 @@ public class HighScoreTable : MonoBehaviour
 
     }
 
-    public string setText(float waktu)
+    [System.Obsolete]
+    IEnumerator getHighscore()
     {
-        int menit = Mathf.FloorToInt(waktu / 60);
-        int detik = Mathf.FloorToInt(waktu % 60);
+        string url = "http://54.254.221.187:5000/api/highscore";
+        WWW w = new WWW(url);
+        yield return w;
 
-        return menit.ToString("00") + ":" + detik.ToString("00");
-    }
+        if (w.error != null)
+        {
+            Debug.Log("submit gagal");
+            Debug.Log(w.error);
+        }
+        else
+        {
+            if (w.isDone)
+            {
+                Debug.Log("succes");
+                Debug.Log(w.text);
+                jsonString = w.text;
+                HighScores highScore = JsonUtility.FromJson<HighScores>(jsonString);
+                Debug.Log(highScore.highscoreEntryList[0].scorePoint);
+                // Debug.Log(highScore.highscoreEntryList.Count);
+                // Debug.Log(highScore == null);
+                // if (highScore.highscoreEntryList.Count != 0)
+                // {
+                    for (int i = 0; i < highScore.highscoreEntryList.Count; i++)
+                    {
+                        for (int j = 0; j < highScore.highscoreEntryList.Count; j++)
+                        {
+
+                            if (highScore.highscoreEntryList[j].scorePoint < highScore.highscoreEntryList[i].scorePoint)
+                            {
+                                HighscoreEntry tmp = highScore.highscoreEntryList[i];
+                                highScore.highscoreEntryList[i] = highScore.highscoreEntryList[j];
+                                highScore.highscoreEntryList[j] = tmp;
+                            }
+                        }
+                    }
+
+                    highscoreTableList = new List<Transform>();
+
+                    for (int i = 0; i < highScore.highscoreEntryList.Count; i++)
+                    {
+
+                        if (i > 9)
+                        {
+                            break;
+                        }
+                        createContentTemplate(highScore.highscoreEntryList[i], tableContent, highscoreTableList);
+                    }
+                }
+            }
+
+            w.Dispose();
+        }
+
+        public string setText(float waktu)
+        {
+            int menit = Mathf.FloorToInt(waktu / 60);
+            int detik = Mathf.FloorToInt(waktu % 60);
+
+            return menit.ToString("00") + ":" + detik.ToString("00");
+        }
 
     private class HighScores
     {
+        bool status;
         public List<HighscoreEntry> highscoreEntryList;
     }
 

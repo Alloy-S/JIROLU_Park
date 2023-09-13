@@ -33,6 +33,8 @@ public class GameHandler : MonoBehaviour
         instance = this;
     }
 
+    
+
     // Update is called once per frame
     void Update()
     {
@@ -101,8 +103,42 @@ public class GameHandler : MonoBehaviour
         {
             isButtonPressed = false;
         }
+
+        
     }
 
+    [System.Obsolete]
+    IEnumerator addHighscoreDB(string teamName, float time, float score) {
+        // teamName = "budi";
+        //time = 1000f;
+        //score = 1100f;
+        WWWForm form = new WWWForm();
+        form.AddField("team_name", teamName);
+        form.AddField("time", time.ToString());
+        form.AddField("score", score.ToString());
+        string url = "http://54.254.221.187:5000/api/highscore";
+        WWW w = new WWW(url, form);
+        yield return w;
+
+        if (w.error != null)
+        {
+            Debug.Log("submit gagal");
+            Debug.Log(w.error);
+        }
+        else
+        {
+            if (w.isDone)
+            {
+                Debug.Log("succes");
+                Debug.Log(w.text);
+
+            }
+        }
+
+        w.Dispose();
+    }
+
+    [System.Obsolete]
     public void addHighScore()
     {
         string name = PlayerPrefs.GetString("squadName");
@@ -112,6 +148,13 @@ public class GameHandler : MonoBehaviour
         // string jsonString = PlayerPrefs.GetString("highScoreTable");
         string jsonString = FileHandler.ReadFromJSON("highscore.json");
         HighScores highScore = JsonUtility.FromJson<HighScores>(jsonString);
+        
+        // WWWForm form = new WWWForm();
+        // form.addField("name", name);
+        // form.addField("point", scorePoint);
+        // string url = "localhost/irgl/irgl.php";
+        // WWW w = new WWW(url, form);
+        StartCoroutine(addHighscoreDB(name, TimerSetting.waktu, scorePoint));
 
         highScore.highscoreEntryList.Add(highscoreEntry);
 
