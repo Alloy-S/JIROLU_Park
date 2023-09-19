@@ -42,7 +42,7 @@ public class GameHandler : MonoBehaviour
         // Debug.Log(GameManager.GetInstance().getGameState());
         // GameManager.GetInstance().updateGameState(GameState.waitingToStart);
         // Debug.Log(passedPlayer);
-        Debug.Log(TimerSetting.waktu);
+        // Debug.Log(TimerSetting.waktu);
 
        
 
@@ -129,7 +129,37 @@ public class GameHandler : MonoBehaviour
         {
             if (w.isDone)
             {
-                Debug.Log("succes");
+                Debug.Log("succes Jirolu API");
+                Debug.Log(w.text);
+
+            }
+        }
+
+        w.Dispose();
+    }
+    IEnumerator addHighscoreIRGL(string teamName, float score) {
+        // teamName = "budi";
+        //time = 1000f;
+        //score = 1100f;
+        WWWForm form = new WWWForm();
+        form.AddField("nama_tim", "CobaCoba");
+        // form.AddField("nama_tim", teamName);
+        form.AddField("nama_game", "jirolu_park");
+        form.AddField("score", score.ToString());
+        string url = "https://irgl.petra.ac.id/main/api_score";
+        WWW w = new WWW(url, form);
+        yield return w;
+
+        if (w.error != null)
+        {
+            Debug.Log("submit gagal");
+            Debug.Log(w.error);
+        }
+        else
+        {
+            if (w.isDone)
+            {
+                Debug.Log("succes API IRGL");
                 Debug.Log(w.text);
 
             }
@@ -155,6 +185,7 @@ public class GameHandler : MonoBehaviour
         // string url = "localhost/irgl/irgl.php";
         // WWW w = new WWW(url, form);
         StartCoroutine(addHighscoreDB(name, TimerSetting.waktu, scorePoint));
+        StartCoroutine(addHighscoreIRGL(name, scorePoint));
 
         highScore.highscoreEntryList.Add(highscoreEntry);
 
