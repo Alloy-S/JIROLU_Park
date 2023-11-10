@@ -59,6 +59,7 @@ public class GameHandler : MonoBehaviour
             lose = true;
             GameManager.GetInstance().updateGameState(GameState.gameOver);
             scorePoint += TimerSetting.waktu;
+            ScoreText.text = scorePoint.ToString();
             timeUpWindow.SetActive(true);
             addHighScore();
             
@@ -141,9 +142,10 @@ public class GameHandler : MonoBehaviour
         // teamName = "budi";
         //time = 1000f;
         //score = 1100f;
+        Debug.Log("submit: " + teamName);
         WWWForm form = new WWWForm();
-        form.AddField("nama_tim", "CobaCoba");
-        // form.AddField("nama_tim", teamName);
+        // form.AddField("nama_tim", "team1");
+        form.AddField("nama_tim", teamName);
         form.AddField("nama_game", "jirolu_park");
         form.AddField("score", score.ToString());
         string url = "https://irgl.petra.ac.id/main/api_score";
@@ -152,7 +154,7 @@ public class GameHandler : MonoBehaviour
 
         if (w.error != null)
         {
-            Debug.Log("submit gagal");
+            Debug.Log("submit gagal IRGL");
             Debug.Log(w.error);
         }
         else
@@ -184,8 +186,9 @@ public class GameHandler : MonoBehaviour
         // form.addField("point", scorePoint);
         // string url = "localhost/irgl/irgl.php";
         // WWW w = new WWW(url, form);
-        StartCoroutine(addHighscoreDB(name, TimerSetting.waktu, scorePoint));
         StartCoroutine(addHighscoreIRGL(name, scorePoint));
+        StartCoroutine(addHighscoreDB(name, TimerSetting.waktu, scorePoint));
+        
 
         highScore.highscoreEntryList.Add(highscoreEntry);
 
@@ -217,6 +220,7 @@ public class GameHandler : MonoBehaviour
 
     public void toMainMenu()
     {
+        GameManager.GetInstance().updateGameState(GameState.waitingToStart);
         SceneManager.LoadScene("MainMenu");
     }
 

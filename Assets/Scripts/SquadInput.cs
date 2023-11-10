@@ -68,6 +68,10 @@ public class SquadInput : MonoBehaviour
         {
             Debug.Log("submit gagal");
             Debug.Log(w.error);
+            Debug.Log("jadi di bypass");
+            PlayerPrefs.SetString("squadName", input.text);
+            PlayerPrefs.Save();
+            SceneManager.LoadScene("MainScene");
         }
         else
         {
@@ -81,9 +85,6 @@ public class SquadInput : MonoBehaviour
                     PlayerPrefs.SetString("squadName", input.text);
                     PlayerPrefs.Save();
                     SceneManager.LoadScene("MainScene");
-
-
-
                 }
                 else
                 {
